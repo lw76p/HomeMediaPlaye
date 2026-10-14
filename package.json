@@ -1,0 +1,13 @@
+{
+  "name": "home-media-player-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "家庭娱乐中心 Web 服务端：局域网零安装访问，可 Docker 部署到 NAS",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}

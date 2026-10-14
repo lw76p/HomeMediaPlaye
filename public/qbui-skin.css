@@ -1,0 +1,73 @@
+/* qBittorrent WebUI · HMP 主题跟随（20260928sk1）
+   颜色全部映射到 HMP 语义变量（--hmp-*），由 /qbui/ 注入的垫片从 HMP 顶层窗口实时同步；
+   HMP 换肤（默认暗 / light / deepblue / 未来新增）qBT 即时跟随。
+   仅覆盖颜色变量与观感，不动布局；qBT 原生状态色（做种绿/出错红/Tracker 色）保留。 */
+
+/* ===== qBT 原生变量 → HMP 变量映射（fallback = HMP 经典暗色值） ===== */
+:root {
+  --hmp-line: var(--hmp-border, rgba(255, 255, 255, .14));
+  --color-text-default: var(--hmp-text, hsl(0deg 0% 90%));
+  --color-text-disabled: var(--hmp-text-mute, hsl(0deg 0% 50%));
+  --color-text-white: var(--hmp-text, hsl(0deg 0% 100%));
+  --color-background-primary: var(--hmp-bg, #0b0b0f);
+  --color-background-default: var(--hmp-bg-card, #16161f);
+  --color-background-popup: var(--hmp-bg-elev, #1e1e2c);
+  --color-background-hover: var(--hmp-bg-hover, #1f1f2b);
+  --color-accent-blue: var(--hmp-accent, #e50914);
+  --color-text-blue: var(--hmp-accent, #e50914);
+  --color-background-blue: var(--hmp-accent, #e50914);
+  --color-border-blue: var(--hmp-accent, #e50914);
+  --color-border-default: var(--hmp-border, #2a2a38);
+}
+/* 与 qBT 的 :root.dark / :root:not(.dark) 同特异性、后加载 → 稳定胜出（亮暗主题统一走 HMP 变量） */
+:root:not(.dark),
+:root.dark {
+  --color-text-default: var(--hmp-text, hsl(0deg 0% 90%));
+  --color-text-disabled: var(--hmp-text-mute, hsl(0deg 0% 50%));
+  --color-text-white: var(--hmp-text, hsl(0deg 0% 100%));
+  --color-background-primary: var(--hmp-bg, #0b0b0f);
+  --color-background-default: var(--hmp-bg-card, #16161f);
+  --color-background-popup: var(--hmp-bg-elev, #1e1e2c);
+  --color-background-hover: var(--hmp-bg-hover, #1f1f2b);
+  --color-accent-blue: var(--hmp-accent, #e50914);
+  --color-text-blue: var(--hmp-accent, #e50914);
+  --color-background-blue: var(--hmp-accent, #e50914);
+  --color-border-blue: var(--hmp-accent, #e50914);
+  --color-border-default: var(--hmp-border, #2a2a38);
+}
+
+/* ===== 字体对齐 HMP ===== */
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", system-ui, sans-serif !important;
+}
+
+/* ===== 圆角统一到 HMP 的按钮观感 ===== */
+button, input[type="submit"], .submitButton, .dangerButton {
+  border-radius: 8px !important;
+}
+input[type="text"], input[type="password"], input[type="number"], select, textarea {
+  border-radius: 6px !important;
+}
+
+/* ===== 滚动条（跟随亮暗：thumb 用半透明前景，亮暗都成立） ===== */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--hmp-border-strong, rgba(128, 128, 140, .55));
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--hmp-border-mid, rgba(128, 128, 140, .8)); }
+
+/* ===== 状态栏 / 弹窗投影 ===== */
+#desktopNavbar { border-bottom: 1px solid var(--hmp-line); }
+.js-modal, .contextMenu {
+  box-shadow: 0 12px 40px var(--hmp-sh-45, rgba(0, 0, 0, .45)) !important;
+  border-radius: 10px !important;
+}
+
+/* 修复(20260927dlx3)：MochaUI 初始化把 #desktop 高度算小 + overflow:hidden，
+   导致顶部下拉菜单被裁掉。样式表 !important 压过 JS 内联高度。 */
+#desktop { height: 100vh !important; min-height: 100vh !important; }
+#desktopHeader, #desktopNavbar { overflow: visible !important; }

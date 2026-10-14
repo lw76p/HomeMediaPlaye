@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>远程访问指引 · 家庭影音库</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0d0d12; color: #e8e8ee; font: 15px/1.75 "Microsoft YaHei", system-ui, sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 34px 22px 80px; }
+  h1 { font-size: 26px; margin: 0 0 6px; color: #fff; }
+  h1 .em { color: #e50914; }
+  .sub { color: #9a9aa6; margin-bottom: 28px; }
+  h2 { font-size: 19px; margin: 38px 0 10px; padding-left: 12px; border-left: 4px solid #e50914; color: #fff; }
+  h3 { font-size: 15.5px; margin: 22px 0 8px; color: #ffd9db; }
+  p, li { color: #c9c9d4; }
+  .card { background: #17171f; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 18px 22px; margin: 14px 0; }
+  .tag { display: inline-block; font-size: 12px; border-radius: 999px; padding: 1px 10px; margin-right: 8px; vertical-align: 2px; }
+  .tag-best { background: rgba(34,170,80,.18); color: #7ee2a0; border: 1px solid rgba(34,170,80,.5); }
+  .tag-ok { background: rgba(230,160,20,.15); color: #ffd489; border: 1px solid rgba(230,160,20,.45); }
+  .tag-no { background: rgba(229,9,20,.15); color: #ff8a8f; border: 1px solid rgba(229,9,20,.5); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td { border: 1px solid rgba(255,255,255,.12); padding: 8px 12px; text-align: left; }
+  th { background: rgba(255,255,255,.05); color: #fff; }
+  code, .path { background: #0d0d12; border: 1px solid rgba(255,255,255,.12); border-radius: 6px; padding: 1px 7px; font-size: 13px; color: #8ecbff; word-break: break-all; }
+  .step { margin: 6px 0; }
+  .step b { color: #fff; }
+  .note { color: #ffd489; font-size: 13.5px; }
+  .warn { color: #ff8a8f; }
+  a { color: #8ecbff; }
+  .back { display: inline-block; margin-bottom: 18px; color: #8ecbff; text-decoration: none; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- 本页常从照片页 target=_blank 新开：新标签没有历史，history.back() 是死链。有历史就回退，没有就回影音库照片页。 -->
+  <a class="back" href="/#/photos" onclick="if (history.length > 1) { history.back(); return false; }">‹ 返回</a>
+  <h1>出门在外远程访问 <span class="em">指引</span></h1>
+  <div class="sub">人在外面，手机/笔记本照样看家里 NAS 的电影、听歌、看照片。按"安全 + 省心"排序。</div>
+
+  <div class="card">
+    <span class="warn">⚠️ 重要前提：</span>本系统面向家庭内网设计，<b>没有登录密码</b>。所以：
+    <b>不要</b>在路由器上直接把端口转发到公网裸奔。用下面的组网方案，安全又省心。
+  </div>
+
+  <h2>方案一：Tailscale 组网（强烈推荐 · 免费且最安全）</h2>
+  <div class="card">
+    <span class="tag tag-best">推荐 · 零公网暴露</span>原理：给家里 NAS 和你的手机发一个"虚拟局域网通行证"，走到哪都能像在家一样访问。
+    <div class="step"><b>1.</b> 注册 Tailscale 账号（<a href="https://login.tailscale.com" target="_blank">login.tailscale.com</a>，免费档全家够用）。
+      <div class="warn" style="margin-top:8px">⚠️ <b>注册时请不要用 Gmail / Google 账号</b>：手机端登录 Google 账号在国内常常连不上，会出现「登不上、一直转圈、授权失败」。推荐用 <b>Microsoft（Outlook）账号、Apple ID 或 GitHub 账号</b>，这些在国内手机上都能正常登录。另外，<b>NAS、电脑、手机必须登录同一个账号</b>，否则互相看不见。</div>
+    </div>
+    <div class="step"><b>2.</b> 家里：NAS 若支持 Docker 可装 Tailscale 容器；装在常年开机的<b>电脑</b>上也可以（Windows 版双击即装）。登录同一账号。</div>
+    <div class="step"><b>3.</b> 手机：应用商店装 Tailscale，登录同一账号，打开开关。</div>
+    <div class="step"><b>4.</b> 完成。以后在外面打开浏览器访问 <code>http://NAS的虚拟IP:8090</code>（Tailscale 面板里能看到每台设备的虚拟 IP），所有功能原样可用。</div>
+    <div class="note">ZeroTier 是同类替代品，任选其一。此方案不暴露任何公网端口，运营商换 IP、无公网 IP 都不影响。</div>
+  </div>
+
+  <h2>方案二：NAS 官方云服务（零配置 · 速度一般）</h2>
+  <div class="card">
+    <span class="tag tag-ok">省事 · 免费中转</span>
+    <div class="step">· 威联通：<b>myQNAPcloud</b>（控制台 → 应用服务 → myQNAPcloud，注册并绑定设备，开启 DDNS / CloudLink）。</div>
+    <div class="step">· 群晖：<b>QuickConnect</b>（控制面板 → QuickConnect，设置一个 ID）。</div>
+    <div class="step">· 中转速度受限（看 4K 可能吃力，刷照片/听歌/看剧够用）。</div>
+    <div class="note">注意：官方云地址同样把管理界面暴露到公网，请确保 NAS 系统保持更新、使用强密码。</div>
+  </div>
+
+  <h2>方案三：内网穿透（有公网 VPS / 需要固定网址时）</h2>
+  <div class="card">
+    <span class="tag tag-no">进阶 · 需配登录保护</span>frp（免费，自备一台云服务器）或花生壳（付费买流量）。把家里的 <code>8090</code> 映射到 VPS 上，得到固定访问地址。
+    <div class="note">此方案会把服务直接暴露到公网，<b>必须先解决认证问题</b>（当前版本无登录功能，建议等口令锁功能上线后再用此方案，或用 frp 自带 auth token + 只允许自己的设备 IP）。</div>
+  </div>
+
+  <h2>方案对比</h2>
+  <table>
+    <tr><th>方案</th><th>难度</th><th>费用</th><th>速度</th><th>安全</th></tr>
+    <tr><td>Tailscale / ZeroTier</td><td>装 App 登录</td><td>免费</td><td>接近内网直连</td><td>最好（零暴露）</td></tr>
+    <tr><td>myQNAPcloud / QuickConnect</td><td>最简单</td><td>免费</td><td>中转限速</td><td>依赖 NAS 强密码</td></tr>
+    <tr><td>frp / 花生壳</td><td>中等</td><td>VPS 费用</td><td>看 VPS 带宽</td><td>需自行加认证</td></tr>
+    <tr><td>路由器端口转发</td><td>中等</td><td>免费</td><td>跑满宽带</td><td><b>不推荐（无认证裸奔）</b></td></tr>
+  </table>
+
+  <h2>常见问题</h2>
+  <div class="card">
+    <h3>远程能做什么？不能做什么？</h3>
+    <p>看片（支持直连的格式原样可用）、听歌、看照片、读书、电视直播都能用。大码率 4K 受上传带宽限制，建议远程看 1080p 或 Remux 版。</p>
+    <h3>手机端 Tailscale 登不上 / 一直转圈怎么办？</h3>
+    <p>九成是账号问题：用 <b>Gmail（Google 账号）</b>注册的账号，在国内手机上需要连上 Google 服务才能完成登录，多数情况会失败。解决办法是用 <b>Microsoft（Outlook）、Apple ID 或 GitHub</b> 账号重新注册一个，再让 NAS / 电脑 / 手机都登录这个新账号即可（免费，几分钟）。另外请确认三端登录的是<b>同一个账号</b>。</p>
+    <h3>家里宽带没有公网 IP 影响吗？</h3>
+    <p>用 Tailscale/ZeroTier 完全不影响（它们专为无公网 IP 设计）。即使光猫是运营商大内网（CGNAT），也能通过 NAT 打洞直连；极少数打洞失败的场景会自动走官方中继，速度稍慢但依然可用。</p>
+    <h3>远程成员能看到我家 NAS 上的其它内容吗？</h3>
+    <p>看不到。默认只暴露影音库这一个端口（如 http://虚拟IP:8090），未开启子网路由——家庭局域网里的其它设备完全不可见，NAS 的文件管理、SMB 共享、SSH、管理后台等端口都不在放行范围内。如需更严格的端口级白名单，可在 Tailscale 管理台 ACL 中只放行影音库端口。</p>
+    <h3>手机上每次都要手动开 VPN 吗？</h3>
+    <p>需要开着 Tailscale 的开关才能进私有网络（这是 VPN 隧道的特性），但可以设成自动。iPhone：打开 Tailscale → 点右上角头像 → <b>VPN On Demand</b> → 打开，建议「Wi-Fi = Do Nothing（在家用局域网直连，不用开）」「蜂窝 = Always（出门用流量自动连）」。安卓：Tailscale → 设置 → 打开「始终开启的 VPN」。Tailscale 只转发私有网络内部（100.x 网段）的流量，<b>不影响正常上网、不额外耗流量</b>。注意 iOS 同时只能有一个 VPN 应用启用「按需连接」，手机若装了其它 VPN/加速器会互相顶掉。</p>
+    <h3>以后会有远程版登录功能吗？</h3>
+    <p>在规划中（简单口令锁）。上线前请优先使用组网方案，不要端口转发裸奔。</p>
+  </div>
+</div>
+</body>
+</html>

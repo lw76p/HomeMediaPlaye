@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>手机照片备份指引 · 家庭影音库</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0d0d12; color: #e8e8ee; font: 15px/1.75 "Microsoft YaHei", system-ui, sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 34px 22px 80px; }
+  h1 { font-size: 26px; margin: 0 0 6px; color: #fff; }
+  h1 .em { color: #e50914; }
+  .sub { color: #9a9aa6; margin-bottom: 28px; }
+  h2 { font-size: 19px; margin: 38px 0 10px; padding-left: 12px; border-left: 4px solid #e50914; color: #fff; }
+  h3 { font-size: 15.5px; margin: 22px 0 8px; color: #ffd9db; }
+  p, li { color: #c9c9d4; }
+  .card { background: #17171f; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 18px 22px; margin: 14px 0; }
+  .tag { display: inline-block; font-size: 12px; border-radius: 999px; padding: 1px 10px; margin-right: 8px; vertical-align: 2px; }
+  .tag-best { background: rgba(34,170,80,.18); color: #7ee2a0; border: 1px solid rgba(34,170,80,.5); }
+  .tag-ok { background: rgba(230,160,20,.15); color: #ffd489; border: 1px solid rgba(230,160,20,.45); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td { border: 1px solid rgba(255,255,255,.12); padding: 8px 12px; text-align: left; }
+  th { background: rgba(255,255,255,.05); color: #fff; }
+  code, .path { background: #0d0d12; border: 1px solid rgba(255,255,255,.12); border-radius: 6px; padding: 1px 7px; font-size: 13px; color: #8ecbff; word-break: break-all; }
+  .step { margin: 6px 0; }
+  .step b { color: #fff; }
+  .note { color: #ffd489; font-size: 13.5px; }
+  a { color: #8ecbff; }
+  .back { display: inline-block; margin-bottom: 18px; color: #8ecbff; text-decoration: none; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- 本页常从照片页 target=_blank 新开：新标签没有历史，history.back() 是死链。有历史就回退，没有就回影音库照片页。 -->
+  <a class="back" href="/#/photos" onclick="if (history.length > 1) { history.back(); return false; }">‹ 返回</a>
+  <h1>手机照片自动备份 <span class="em">指引</span></h1>
+  <div class="sub">把全家的手机照片自动备份到影音库（NAS），按设备分相册、互不混淆。以下方案按自动化程度排序，均为各品牌 NAS 通用。人在外地想远程访问家里的库？看<a href="/guide-remote.html">《远程访问指引》</a>。</div>
+
+  <h2>方式一：网页一键增量备份（零安装，本系统内置）</h2>
+  <div class="card">
+    <span class="tag tag-ok">半自动</span>打开影音库网页 → 照片页 → 点「⬆️ 备份手机照片」。
+    <div class="step"><b>① 首次使用</b>：输入设备名（如 爸爸手机 / 妈妈手机）→ 照片库自动创建同名目录与相册。</div>
+    <div class="step"><b>② 选照片</b>：安卓推荐选「允许浏览整个相册文件夹」，之后每次一键就完成对比与上传；iPhone 勾选照片后确认。</div>
+    <div class="step"><b>③ 自动增量</b>：已备份过的照片（按 文件名+大小 比对）自动跳过，只传新照片，重复点击不会产生重复。</div>
+    <div class="note">限制：浏览器关掉就停，所以每次需要打开网页点一下。想要"连上 WiFi 全自动"，看方式二/三。</div>
+  </div>
+
+  <h2>方式二：安卓全自动（Round-Sync，配置一次终身不管）</h2>
+  <div class="card">
+    <span class="tag tag-best">推荐 · 全自动</span>安卓手机装 <b>Round-Sync</b>，让它把「相机相册」定时同步到 NAS 的照片目录。
+    <div class="note" style="margin:8px 0 4px">
+      📱 <b>App 在哪拿？</b>装好影音库后，<b>电脑桌面</b>会生成「<b>家庭影音-手机备份</b>」文件夹，
+      双击里面的「<b>下载手机备份App.bat</b>」即自动下载；也可打开同目录的
+      《手机备份App-下载与设置说明.txt》按说明手动下载。
+    </div>
+    <p style="font-size:13.5px;color:#9a9aa6">Round-Sync 是开源免费软件（GitHub 2300+ 星，GPL-3.0），无广告、不收集数据；底层用 rclone 引擎，<b>支持 SMB / WebDAV / FTP / SFTP 及 40 多种网盘</b>，任何品牌 NAS 都能用。</p>
+    <h3>配置步骤</h3>
+    <div class="step"><b>1.</b> 确认 NAS 已开启 SMB 或 WebDAV（见下方「各品牌 NAS 开启文件服务」）。</div>
+    <div class="step"><b>2.</b> Round-Sync → 点「+」新建连接 → 选 <b>WebDAV</b>（或 <b>SMB</b>）→ 地址填 <code>http://NAS的IP:端口/</code>（WebDAV 如 <code>http://192.168.8.62:5005/</code>）→ 填 NAS 账号密码 → 测试通过。</div>
+    <div class="step"><b>3.</b> 新建同步任务：左侧选手机 <b>DCIM/Camera</b>，右侧选 NAS 照片目录下的设备子目录（如 <code>照片/爸爸手机/</code>，可先在网页端备份一次让它自动建好）。</div>
+    <div class="step"><b>4.</b> 方向选「<b>复制</b>」（只上传不删除）→ 「计划」里启用定期同步 +「<b>仅 Wi-Fi</b>」+「<b>充电时</b>」。</div>
+    <div class="step"><b>5.</b> 完成。以后在家连 WiFi 并充电时，新照片自动进 NAS，影音库自动扫描入库到「爸爸手机」相册。</div>
+  </div>
+
+  <h2>方式三：iPhone（iOS「文件」App，系统自带，免费）</h2>
+  <div class="card">
+    <span class="tag tag-ok">系统自带</span>iPhone 不装任何第三方 App，用系统「文件」App 连接 NAS 的 WebDAV：
+    <div class="step"><b>1.</b> 打开「文件」App → 右上角「⋯」→「连接服务器」→ 填 <code>http://NAS的IP:端口/</code>（如 <code>http://192.168.8.62:5005/</code>）→ 填 NAS 账号密码（可选择记住密码）。</div>
+    <div class="step"><b>2.</b> 进入照片目录下的设备子目录（如 <code>照片/妈妈手机/</code>，可先在网页端备份一次让它自动建好）。</div>
+    <div class="step"><b>3.</b> 打开「照片」App 选中照片 → 分享 →「存储到文件」→ 选刚才的目录 → 完成。下次备份时「最近项目」里已传过的不会再传。</div>
+    <div class="note">说明：iOS 系统不允许任何 App 在后台自动传相册（苹果限制，连 iCloud 也一样），所以 iPhone 是"打开即传"级别。想更省事可以装 PhotoSync（App Store 免费下载，自动传输为一次性内购）。</div>
+  </div>
+
+  <h2>各品牌 NAS 开启文件服务（SMB / WebDAV）</h2>
+  <table>
+    <tr><th>品牌 / 系统</th><th>开启方法</th><th>默认端口</th></tr>
+    <tr><td>群晖 Synology（DSM 7）</td><td>套件中心安装「<b>WebDAV Server</b>」→ 打开 → 勾选启用 HTTP/HTTPS 端口</td><td>5005 / 5006</td></tr>
+    <tr><td>威联通 QNAP（QTS）</td><td>App Center 搜索安装「<b>WebDAV Server</b>」官方应用 → 启用并设置端口权限</td><td>8081 等</td></tr>
+    <tr><td>华硕 / 爱速（ASUSTOR）</td><td>App Central 安装「WebDAV」类应用（如 WebDAV Server）</td><td>视应用</td></tr>
+    <tr><td>绿联 / 极空间等新品</td><td>在系统设置的「文件服务 / 远程访问」里查找 WebDAV 或 FTP 开关；没有的话可用 Docker 装 <b>Alist</b>（万能文件服务，自带 WebDAV）</td><td>视应用</td></tr>
+    <tr><td>Windows 电脑当服务器</td><td>不强制要 WebDAV：本系统网页备份即可用；也可用免费工具（如 wodWebDAV / RabbitFTP）开启</td><td>自定</td></tr>
+  </table>
+  <p class="note">安全提示：WebDAV 请只在<b>家庭内网</b>使用（不要在路由器上把端口暴露到公网）；账号密码用 NAS 的强密码。</p>
+
+  <h2>常见问题</h2>
+  <div class="card">
+    <h3>备份后照片在哪里看？</h3>
+    <p>影音库 → 相册 → 相簿标签页，会按设备名出现独立相册（爸爸手机 / 妈妈手机…），首页横滑区也会展示。</p>
+    <h3>HEIC / HEIF 格式（iPhone 高效格式）传不上去？</h3>
+    <p>网页备份方式暂不支持自动转码 HEIC。建议：① iPhone「设置 → 相机 → 格式」改为「兼容性最佳」（拍出来就是 JPEG）；② 或用 Round-Sync/PhotoSync 直接传原文件（影音库的 RAW/HEIC 原片归档支持查看内嵌预览）。</p>
+    <h3>会不会重复备份？</h3>
+    <p>不会。按「文件名 + 大小」比对，已备份过的自动跳过；同名不同内容的照片会自动加序号保存，不覆盖。</p>
+    <h3>两台手机的照片会混吗？</h3>
+    <p>不会。每台设备一个独立目录与相册，天然隔离。</p>
+    <h3>儿童模式下能备份吗？</h3>
+    <p>不能。儿童模式开启期间备份入口隐藏、接口锁定，退出儿童模式（需家长 PIN）后才可备份。</p>
+  </div>
+</div>
+</body>
+</html>

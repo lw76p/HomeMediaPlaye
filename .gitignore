@@ -1,0 +1,12 @@
+# 运行时数据与缓存（不入库）
+data/
+.ota-staging/
+.ota-prev/
+*.log
+*.pid
+*.bak
+*.bak-*
+
+# AI 模型（约 190MB，超 GitHub 限制；首次使用相关功能时自动从 hf-mirror 下载，
+# 也可手动放入 vendor/ai/models/）
+vendor/ai/models/

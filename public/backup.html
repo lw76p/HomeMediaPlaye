@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0b0f" />
+<title>手机照片备份 · 家庭娱乐中心</title>
+<style>
+  :root { --bg:#0b0b0f; --card:#16161f; --card2:#1c1c26; --line:#2a2a38; --txt:#eaeaf0; --dim:#9a9aa8; --red:#e50914; --ok:#22c55e; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--bg); color:var(--txt); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; min-height:100vh; padding:18px 14px calc(24px + env(safe-area-inset-bottom)); max-width:560px; margin:0 auto; }
+  .logo { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .logo .bear { font-size:30px; }
+  .logo h1 { font-size:20px; letter-spacing:1px; }
+  .logo h1 em { font-style:normal; color:var(--red); }
+  .sub { color:var(--dim); font-size:13px; margin-bottom:18px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:14px; }
+  .card h2 { font-size:15px; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+  .badge { font-size:11px; padding:2px 8px; border-radius:99px; background:rgba(34,197,94,.15); color:var(--ok); font-weight:600; }
+  .badge.rec { background:rgba(229,9,20,.16); color:#ff6b76; }
+  label { display:block; font-size:12px; color:var(--dim); margin:10px 0 5px; }
+  input[type=text] { width:100%; background:var(--card2); border:1px solid var(--line); border-radius:10px; color:var(--txt); font-size:16px; padding:11px 12px; outline:none; }
+  input[type=text]:focus { border-color:var(--red); }
+  button { border:0; border-radius:10px; font-size:15px; padding:12px 16px; cursor:pointer; font-family:inherit; }
+  .btn-main { background:var(--red); color:#fff; width:100%; font-weight:600; }
+  .btn-main:disabled { opacity:.5; }
+  .btn-sub { background:var(--card2); border:1px solid var(--line); color:var(--txt); width:100%; margin-top:10px; font-weight:600; }
+  .btn-link { background:none; color:var(--dim); font-size:13px; padding:6px; text-decoration:underline; }
+  .tip { font-size:12px; color:var(--dim); line-height:1.7; margin-top:10px; }
+  .ok-line { color:var(--ok); font-size:14px; display:flex; align-items:center; gap:6px; }
+  .drop { border:2px dashed var(--line); border-radius:14px; padding:26px 14px; text-align:center; transition:.2s; display:block; }
+  .drop.on { border-color:var(--red); background:rgba(229,9,20,.06); }
+  .drop .big { font-size:36px; }
+  .drop p { color:var(--dim); font-size:13px; margin-top:8px; }
+  #pick, #pickDir { display:none; }
+  .prog-wrap { margin-top:14px; display:none; }
+  .bar { height:10px; background:var(--card2); border-radius:6px; overflow:hidden; }
+  .bar i { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--red),#ff6b3d); transition:width .3s; }
+  .stats { display:flex; gap:14px; margin-top:10px; font-size:13px; color:var(--dim); flex-wrap:wrap; }
+  .stats b { color:var(--txt); }
+  .msg { margin-top:10px; font-size:13px; line-height:1.6; min-height:18px; word-break:break-all; }
+  .msg.err { color:#ff6b76; }
+  .msg.ok { color:var(--ok); }
+  .hidden { display:none !important; }
+  details { margin-top:12px; }
+  details summary { cursor:pointer; font-size:13px; color:var(--txt); padding:10px 12px; background:var(--card2); border-radius:10px; }
+  details .inner { font-size:13px; color:var(--dim); line-height:1.9; padding:12px 6px 2px; }
+  details .inner b { color:var(--txt); }
+  details .inner .step { display:flex; gap:8px; margin:4px 0; }
+  details .inner .step i { font-style:normal; color:var(--red); font-weight:700; flex:none; }
+</style>
+</head>
+<body>
+  <div class="logo"><span class="bear">🐻</span><h1>家庭<em>娱乐中心</em> · 手机照片备份</h1></div>
+  <div class="sub">照片、视频备份到家里的小主机 · 已备份的自动跳过 · 安卓推荐「一键整库自动备份」</div>
+
+  <div class="card" id="pair-card">
+    <h2>📡 第一步：连接家里的影音库</h2>
+    <label>主机地址（和手机同一 WiFi；装了 Tailscale 可填虚拟 IP）</label>
+    <input type="text" id="server" placeholder="如 http://192.168.8.62:8090" autocomplete="off" />
+    <label>这台手机叫什么（如「涛哥的手机」「妈妈的手机」）</label>
+    <input type="text" id="devname" placeholder="设备名称" autocomplete="off" />
+    <div style="margin-top:14px"><button class="btn-main" id="pair-btn">连接并配对这台设备</button></div>
+    <div class="msg" id="pair-msg"></div>
+    <div class="tip">提示：手机浏览器直接打开 <b>http://主机地址:8090/backup.html</b> 可免填地址；桌面双击备份工具也一样。</div>
+  </div>
+
+  <div class="card hidden" id="up-card">
+    <h2>✅ 已连接</h2>
+    <div class="ok-line" id="dev-line"></div>
+
+    <label class="drop" id="dropDir" for="pickDir" style="margin-top:14px;border-color:var(--red)">
+      <span class="badge rec">安卓推荐 · 全自动</span>
+      <div class="big">📁</div>
+      <div style="font-weight:600;margin-top:6px">一键备份整个相册文件夹（DCIM）</div>
+      <p>选一次相册文件夹即可：自动包含所有子文件夹、自动过滤照片和视频、<br>已备份的自动跳过，之后拍的新照片再点一次即可增量备份</p>
+    </label>
+    <input type="file" id="pickDir" webkitdirectory multiple />
+
+    <label class="drop" id="drop" for="pick" style="margin-top:12px">
+      <span class="badge">iPhone / 手动多选</span>
+      <div class="big">🖼️</div>
+      <div style="font-weight:600;margin-top:6px">选择照片 / 视频备份</div>
+      <p>可多选；支持 JPG / PNG / HEIC / RAW / 视频<br>已备份过的会自动跳过，不会重复占用空间</p>
+    </label>
+    <input type="file" id="pick" multiple accept="image/*,video/*,.heic,.heif,.dng,.cr2,.cr3,.arw,.nef,.orf,.rw2" />
+
+    <div class="prog-wrap" id="prog-wrap">
+      <div class="bar"><i id="bar"></i></div>
+      <div class="stats">
+        <span>进度 <b id="s-done">0</b>/<b id="s-total">0</b></span>
+        <span>新增 <b id="s-saved" style="color:var(--ok)">0</b></span>
+        <span>已存在跳过 <b id="s-skip">0</b></span>
+        <span>失败 <b id="s-fail" style="color:#ff6b76">0</b></span>
+      </div>
+    </div>
+    <div class="msg" id="up-msg"></div>
+    <div style="text-align:right;margin-top:6px"><button class="btn-link" id="reset-dev">更换设备 / 地址</button></div>
+  </div>
+
+  <div class="card hidden" id="ios-card">
+    <h2>🍏 苹果手机：用《文件》App 备份（免选图，整批拷贝）</h2>
+    <details open>
+      <summary>把 iPhone 里的照片整批拷到家里的小主机（一次配置，之后随时用）</summary>
+      <div class="inner">
+        <div class="step"><i>①</i><span>打开 iPhone 自带 <b>「文件」App</b> → 右上角「···」→ <b>「连接服务器」</b></span></div>
+        <div class="step"><i>②</i><span>服务器填 <b id="ios-smb">smb://192.168.8.62</b>（把 IP 换成你家主机的 IP；另见随包《苹果手机备份教程》）</span></div>
+        <div class="step"><i>③</i><span>输入 NAS 的账号密码 → 连上后打开共享文件夹，把照片拷进里面的 <b>手机备份</b> 文件夹</span></div>
+        <div class="step"><i>④</i><span>回到本页所在的影音库：照片会随扫描自动进入 <b>「相册 → 📱 手机备份相册」</b></span></div>
+        <div class="tip">小技巧：照片 App 里点「选择」可多选 → 分享 → 「存储到文件」→ 选刚连接的服务器文件夹，一次可存几百张。</div>
+      </div>
+    </details>
+  </div>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var KEY_S = 'bk-server', KEY_D = 'bk-device';
+  var server = localStorage.getItem(KEY_S) || '';
+  var dev = null;
+  try { dev = JSON.parse(localStorage.getItem(KEY_D) || 'null'); } catch (e) {}
+
+  var IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var IS_ANDROID = /Android/.test(navigator.userAgent);
+
+  // 有默认地址线索：当前页面就挂在主机上（backup.html 随包分发）
+  if (!server && location.protocol.startsWith('http') && location.pathname.indexOf('/backup') === 0) {
+    server = location.origin;
+  }
+
+  function api(path, opts) {
+    return fetch(server.replace(/\/+$/, '') + path, opts).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+        return j;
+      });
+    });
+  }
+
+  function showPair() {
+    $('#pair-card').classList.remove('hidden');
+    $('#up-card').classList.add('hidden');
+    $('#ios-card').classList.add('hidden');
+    if (server) $('#server').value = server;
+  }
+  function showUp() {
+    $('#pair-card').classList.add('hidden');
+    $('#up-card').classList.remove('hidden');
+    $('#dev-line').textContent = '✅ 已连接 ' + server.replace(/^https?:\/\//, '') + ' · 设备「' + dev.name + '」';
+    $('#ios-card').classList.toggle('hidden', !IS_IOS);
+    if (IS_IOS) { var el = $('#ios-smb'); if (el) el.textContent = 'smb://' + server.replace(/^https?:\/\//, '').replace(/:\d+$/, ''); }
+    // iPhone 没有「选文件夹」能力：隐藏整库模式，避免误触
+    if (IS_IOS) { $('#dropDir').classList.add('hidden'); }
+  }
+
+  if (server && dev && dev.id) { showUp(); } else { showPair(); if (server) $('#server').value = server; }
+
+  $('#pair-btn').onclick = function () {
+    var btn = this, msg = $('#pair-msg');
+    server = $('#server').value.trim().replace(/\/+$/, '');
+    var name = $('#devname').value.trim() || '我的手机';
+    msg.className = 'msg'; msg.textContent = '连接中…';
+    if (!/^https?:\/\//.test(server)) { msg.className = 'msg err'; msg.textContent = '地址要以 http:// 或 https:// 开头，例如 http://192.168.8.62:8090'; return; }
+    btn.disabled = true;
+    api('/api/backup/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name }) })
+      .then(function (r) {
+        dev = r.device;
+        localStorage.setItem(KEY_S, server);
+        localStorage.setItem(KEY_D, JSON.stringify(dev));
+        msg.textContent = ''; showUp();
+      })
+      .catch(function (e) {
+        msg.className = 'msg err';
+        msg.textContent = '连不上：' + e.message + '。请确认手机和主机在同一网络、地址端口正确（默认 8090），主机上的影音库已启动。';
+      })
+      .finally(function () { btn.disabled = false; });
+  };
+
+  $('#reset-dev').onclick = function () { showPair(); };
+
+  var input = $('#pick'), drop = $('#drop');
+  input.onchange = function () { if (input.files.length) uploadAll(input.files, '选择的照片'); input.value = ''; };
+  ['dragover', 'dragenter'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('on'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('on'); }); });
+  drop.addEventListener('drop', function (e) { if (e.dataTransfer.files.length) uploadAll(e.dataTransfer.files, '拖入的照片'); });
+
+  /* 安卓：一键整库（webkitdirectory 递归整个 DCIM，自动过滤非媒体、自动去重） */
+  var dirInput = $('#pickDir'), dropDir = $('#dropDir');
+  dirInput.onchange = function () {
+    if (!dirInput.files.length) return;
+    var all = Array.prototype.slice.call(dirInput.files);
+    var media = all.filter(function (f) {
+      if (!f.type) return /\.(jpe?g|png|gif|webp|bmp|heic|heif|dng|cr2|cr3|arw|nef|orf|rw2|mp4|mov|m4v|3gp|webm|avi|mkv)$/i.test(f.name);
+      return /^image\//.test(f.type) || /^video\//.test(f.type);
+    });
+    if (!media.length) {
+      var m = $('#up-msg'); m.className = 'msg err';
+      m.textContent = '所选文件夹里没有照片或视频。请选择相册文件夹（手机上一般是 DCIM 或 Pictures）。';
+      return;
+    }
+    var skippedOther = all.length - media.length;
+    uploadAll(media, '相册文件夹「' + (media[0].webkitRelativePath || '').split('/')[0] + '」', skippedOther);
+    dirInput.value = '';
+  };
+  ['dragover', 'dragenter'].forEach(function (ev) { dropDir.addEventListener(ev, function (e) { e.preventDefault(); dropDir.classList.add('on'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { dropDir.addEventListener(ev, function (e) { e.preventDefault(); dropDir.classList.remove('on'); }); });
+  dropDir.addEventListener('drop', function (e) {
+    var items = e.dataTransfer.files;
+    if (items.length) uploadAll(items, '拖入的文件夹');
+  });
+
+  /* 屏幕常亮：整库备份时间长，防止手机息屏断上传（不支持就静默跳过） */
+  var wakeLock = null;
+  function keepAwake() {
+    try {
+      if (navigator.wakeLock && navigator.wakeLock.request) {
+        navigator.wakeLock.request('screen').then(function (wl) { wakeLock = wl; }).catch(function () {});
+      }
+    } catch (e) { /* ignore */ }
+  }
+  function releaseAwake() { try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) { /* ignore */ } }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && uploading) keepAwake();
+  });
+
+  var uploading = false;
+  function uploadAll(fileList, label, skippedOther) {
+    var files = Array.prototype.slice.call(fileList);
+    var msg = $('#up-msg'), wrap = $('#prog-wrap');
+    uploading = true; keepAwake();
+    msg.className = 'msg';
+    msg.textContent = label + '：共 ' + files.length + ' 个文件，开始备份…' + (skippedOther ? '（另有 ' + skippedOther + ' 个非媒体文件自动忽略）' : '');
+    wrap.style.display = 'block';
+    $('#s-total').textContent = files.length;
+    $('#s-done').textContent = '0'; $('#s-saved').textContent = '0'; $('#s-skip').textContent = '0'; $('#s-fail').textContent = '0';
+    $('#bar').style.width = '0%';
+    var done = 0, saved = 0, skip = 0, fail = 0;
+    var errors = [];
+    var started = Date.now();
+
+    function one(file) {
+      var fd = new FormData();
+      fd.append('deviceId', dev.id);
+      fd.append('files', file, file.name);
+      return api('/api/backup/photos', { method: 'POST', body: fd }).then(function (r) {
+        saved += r.saved || 0; skip += r.skipped || 0;
+      }).catch(function (e) { fail++; errors.push(file.name + '：' + e.message); });
+    }
+
+    var chain = Promise.resolve();
+    files.forEach(function (f) {
+      chain = chain.then(function () {
+        return one(f).finally(function () {
+          done++;
+          $('#s-done').textContent = done;
+          $('#s-saved').textContent = saved;
+          $('#s-skip').textContent = skip;
+          $('#s-fail').textContent = fail;
+          $('#bar').style.width = Math.round(done * 100 / files.length) + '%';
+        });
+      });
+    });
+    chain.then(function () {
+      uploading = false; releaseAwake();
+      var mins = Math.round((Date.now() - started) / 60000 * 10) / 10;
+      if (fail === 0) {
+        msg.className = 'msg ok';
+        msg.textContent = '🎉 备份完成！新增 ' + saved + ' 个' + (skip ? '，' + skip + ' 个之前已备份自动跳过' : '') + '，用时 ' + mins + ' 分钟。打开家庭娱乐中心「照片」页，在「📱 手机备份相册」里就能看到。以后拍了新照片，再点一次同样的按钮即可增量备份。';
+      } else {
+        msg.className = 'msg err';
+        msg.textContent = '完成，但 ' + fail + ' 个失败：' + errors.slice(0, 3).join('；') + (errors.length > 3 ? ' 等' : '') + '。失败的可再点一次重传（已成功的会自动跳过）。';
+      }
+    }).catch(function () { uploading = false; releaseAwake(); });
+  }
+})();
+</script>
+</body>
+</html>

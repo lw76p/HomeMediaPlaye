@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>家庭娱乐中心</title>
+  <link rel="stylesheet" href="/style.css?v=artp39" />
+  <link rel="icon" href="/favicon.ico" />
+</head>
+<body>
+  <header class="topnav">
+    <div class="brand"><img class="brand-img" src="/logo/logo-nav-dark.png" alt="家庭娱乐中心" draggable="false" /></div>
+    <nav class="nav-links">
+      <a href="#/home" data-nav>首页</a>
+      <a href="#/media" id="nav-media" data-nav>影视中心</a>
+      <a href="#/music" data-nav>音乐中心</a>
+      <a href="#/photos" data-nav>家庭相册</a>
+      <a href="#/books" data-nav>电子书架</a>
+      <a href="#/games" data-nav>游戏中心</a>
+      <a href="#/library" data-nav>设置</a>
+    </nav>
+    <div class="nav-right">
+      <div class="search-capsule" id="search-capsule">
+      <input id="search" type="search" placeholder="搜索全部内容：影片 / 音乐 / 图书" />
+      <button id="search-go" type="button" title="搜索" aria-label="搜索"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg></button>
+      </div>
+    </div>
+  </header>
+  <div id="scan-bar" class="scan-bar hidden"></div>
+  <main id="app"></main>
+  <footer class="site-footer">© 2026 天晟科技 · 家庭娱乐中心</footer>
+  <script src="/vendor/hls.min.js"></script>
+  <script>
+    // 每次新打开页面：主动清理浏览器侧缓存（Cache Storage / Service Worker），
+    // 确保页面与脚本始终加载最新版本。服务器端的媒体库与网盘设置不受影响。
+    (function () {
+      try {
+        if (window.caches && caches.keys) {
+          caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); }).catch(function () {});
+        }
+        if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+          navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); }).catch(function () {});
+        }
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+  <script src="/qrcode.min.js?v=1"></script>
+  <script src="/vendor/artplayer.min.js"></script>
+  <script src="/app.js?v=artp41"></script>
+</body>
+</html>
