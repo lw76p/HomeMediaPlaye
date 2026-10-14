@@ -1,0 +1,2 @@
+# HomeMediaPlaye
+HomeMediaPlaye部署在NAS上的家庭娱乐平台
